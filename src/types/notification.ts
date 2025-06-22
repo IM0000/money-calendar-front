@@ -46,7 +46,7 @@ export interface NotificationSettings {
   emailEnabled: boolean;
   slackEnabled: boolean;
   slackWebhookUrl?: string;
-  allEnabled: boolean;
+  notificationsEnabled: boolean;
 }
 
 export interface NotificationResponse {

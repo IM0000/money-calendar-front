@@ -102,7 +102,7 @@ export const getNotificationSettings = withErrorHandling(
       emailEnabled: boolean;
       slackEnabled: boolean;
       slackWebhookUrl?: string;
-      allEnabled: boolean;
+      notificationsEnabled: boolean;
     }>
   > => {
     const response = await apiClient.get('/api/v1/notification/settings');
@@ -120,13 +120,13 @@ export const updateNotificationSettings = withErrorHandling(
     emailEnabled?: boolean;
     slackEnabled?: boolean;
     slackWebhookUrl?: string;
-    allEnabled?: boolean;
+    notificationsEnabled?: boolean;
   }): Promise<
     ApiResponse<{
       emailEnabled: boolean;
       slackEnabled: boolean;
       slackWebhookUrl?: string;
-      allEnabled: boolean;
+      notificationsEnabled: boolean;
     }>
   > => {
     const response = await apiClient.put(
