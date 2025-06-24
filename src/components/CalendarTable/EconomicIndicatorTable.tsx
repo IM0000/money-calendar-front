@@ -79,9 +79,9 @@ export default function EconomicIndicatorTable({
 
   return (
     <CalendarTableWrapper headerRefs={headerRefs}>
-      <table className="min-w-full divide-y divide-gray-200 table-fixed">
+      <table className="min-w-full table-fixed divide-y divide-gray-200">
         {/* 메인 헤더: 스크롤 시 상단에 고정 (헤더 높이 약 2.80rem) */}
-        <thead className="sticky top-0 z-30 calendar-table-header bg-gray-50">
+        <thead className="calendar-table-header sticky top-0 z-30 bg-gray-50">
           <tr className="h-[2.80rem]">
             <th className="w-[70px] min-w-[70px] px-3 py-2 text-center text-sm font-medium text-gray-700">
               시간
@@ -136,7 +136,7 @@ export default function EconomicIndicatorTable({
                   >
                     <td
                       colSpan={7}
-                      className="px-4 py-2 text-sm font-semibold border-b sticky-separator-td"
+                      className="sticky-separator-td border-b px-4 py-2 text-sm font-semibold"
                     >
                       {formattedGroupDate}
                     </td>
@@ -163,6 +163,9 @@ export default function EconomicIndicatorTable({
               );
             })
           )}
+          <tr>
+            <td colSpan={7} style={{ height: '500px' }} />
+          </tr>
         </tbody>
       </table>
     </CalendarTableWrapper>
@@ -207,16 +210,16 @@ function EconomicIndicatorRow({
 
   return (
     <tr className="relative">
-      <td className="px-3 py-2 text-sm text-center text-gray-700">
+      <td className="px-3 py-2 text-center text-sm text-gray-700">
         {formatTime(indicator.releaseDate)}
       </td>
-      <td className="px-2 py-2 text-sm text-center text-gray-700">
+      <td className="px-2 py-2 text-center text-sm text-gray-700">
         <CountryFlag countryCode={indicator.country} />
       </td>
       <td className="px-4 py-2 text-sm text-gray-700">
         <div className="flex items-center justify-between">
           <span>{indicator.name}</span>
-          <div className="flex items-center ml-2 space-x-1">
+          <div className="ml-2 flex items-center space-x-1">
             <FavoriteButton
               eventType="indicatorGroup"
               isFavorite={isFavorite}
@@ -232,18 +235,18 @@ function EconomicIndicatorRow({
           </div>
         </div>
       </td>
-      <td className="px-3 py-2 text-sm text-center text-gray-700">
+      <td className="px-3 py-2 text-center text-sm text-gray-700">
         <div className="flex justify-center">
           {renderImportanceStars(indicator.importance)}
         </div>
       </td>
-      <td className="px-3 py-2 text-sm font-bold text-center text-gray-700">
+      <td className="px-3 py-2 text-center text-sm font-bold text-gray-700">
         {indicator.actual}
       </td>
-      <td className="px-3 py-2 text-sm text-center text-gray-700">
+      <td className="px-3 py-2 text-center text-sm text-gray-700">
         {indicator.forecast}
       </td>
-      <td className="px-3 py-2 text-sm text-center text-gray-700">
+      <td className="px-3 py-2 text-center text-sm text-gray-700">
         {indicator.previous}
       </td>
     </tr>

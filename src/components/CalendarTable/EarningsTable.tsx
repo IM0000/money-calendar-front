@@ -177,6 +177,9 @@ export default function EarningsTable({
               );
             })
           )}
+          <tr>
+            <td colSpan={7} style={{ height: '500px' }} />
+          </tr>
         </tbody>
       </table>
     </CalendarTableWrapper>

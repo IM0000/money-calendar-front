@@ -161,6 +161,9 @@ export default function DividendTable({
               );
             })
           )}
+          <tr>
+            <td colSpan={8} style={{ height: '500px' }} />
+          </tr>
         </tbody>
       </table>
     </CalendarTableWrapper>
