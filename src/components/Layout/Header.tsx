@@ -46,21 +46,37 @@ export default function Header() {
         esRef.current = es;
 
         es.onmessage = (e) => {
-          console.log('es onmessage');
           try {
-            queryClient.setQueryData<{ data: { count: number } }>(
-              ['unreadNotificationsCount'],
-              (old) => ({ data: { count: (old?.data.count || 0) + 1 } }),
-            );
-            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            const messageData = JSON.parse(e.data);
+            const data = messageData.data;
+
+            if (data.type === 'count_update') {
+              // 읽지 않은 알림 개수 업데이트
+              queryClient.setQueryData<{ data: { count: number } }>(
+                ['unreadNotificationsCount'],
+                () => ({ data: { count: data.unreadCount } }),
+              );
+            } else if (data.type === 'notification') {
+              // 새 알림 수신 - 서버에서 제공한 정확한 개수 사용
+              queryClient.setQueryData<{ data: { count: number } }>(
+                ['unreadNotificationsCount'],
+                (old) => ({
+                  data: {
+                    count: data.unreadCount || (old?.data.count || 0) + 1,
+                  },
+                }),
+              );
+              queryClient.invalidateQueries({ queryKey: ['notifications'] });
+              setShowBubble(true);
+            }
           } catch (err) {
             console.error('SSE 데이터 파싱 실패:', e.data, err);
             toast.error('알림 수신 중 문제가 발생했습니다.');
           }
-          setShowBubble(true);
         };
 
-        es.onerror = () => {
+        es.onerror = (error) => {
+          console.log('SSE 연결 오류:', error);
           console.log('es error, 재연결 큐잉');
           es.close();
           queueEventSource(instantiate);

@@ -15,7 +15,6 @@ import toast from 'react-hot-toast';
 
 export default function MainPage() {
   const [selectedMenu, setSelectedMenu] = useState('경제지표');
-  const [isMenuChanging, setIsMenuChanging] = useState(false);
   const [selectedImportance, setSelectedImportance] = useState<number[]>([]);
 
   const { subSelectedDates } = useCalendarStore();
@@ -46,14 +45,7 @@ export default function MainPage() {
 
   const handleMenuClick = (menu: string) => {
     if (menu === selectedMenu) return;
-
-    setIsMenuChanging(true);
     setSelectedMenu(menu);
-
-    // 메뉴 변경 후 약간의 딜레이를 두고 로딩 상태 해제
-    setTimeout(() => {
-      setIsMenuChanging(false);
-    }, 100);
   };
 
   const getButtonClass = (menu: string) => {
@@ -79,7 +71,7 @@ export default function MainPage() {
         {/* {import.meta.env.DEV && <TestErrorButton />} */}
 
         {/* 메뉴 버튼 영역 */}
-        <div className="mt-4 flex items-center justify-between px-8 text-sm">
+        <div className="flex items-center justify-between px-8 mt-4 text-sm">
           <div className="flex space-x-4">
             <button
               className={getButtonClass('경제지표')}
@@ -111,12 +103,12 @@ export default function MainPage() {
         </div>
 
         {/* 선택된 메뉴에 따라 테이블 컴포넌트 렌더링 */}
-        <div className="mt-4 w-full overflow-x-auto border-gray-300 px-8">
+        <div className="w-full px-8 mt-4 overflow-x-auto border-gray-300">
           {selectedMenu === '경제지표' && (
             <EconomicIndicatorTable
               events={economicIndicators}
               dateRange={dateRange}
-              isLoading={isLoading || isMenuChanging}
+              isLoading={isLoading}
               selectedImportance={selectedImportance}
             />
           )}
@@ -124,14 +116,14 @@ export default function MainPage() {
             <EarningsTable
               events={earnings}
               dateRange={dateRange}
-              isLoading={isLoading || isMenuChanging}
+              isLoading={isLoading}
             />
           )}
           {selectedMenu === '배당' && (
             <DividendTable
               events={dividends}
               dateRange={dateRange}
-              isLoading={isLoading || isMenuChanging}
+              isLoading={isLoading}
             />
           )}
         </div>

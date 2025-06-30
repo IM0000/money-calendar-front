@@ -21,10 +21,11 @@ const NotificationSettings = () => {
   const [slackWebhookUrl, setSlackWebhookUrl] = useState<string | undefined>(
     undefined,
   );
-  const [allEnabled, setAllEnabled] = useState<boolean>(true);
+  const [notificationsEnabled, setNotificationsEnabled] =
+    useState<boolean>(true);
   const [slackUrlError, setSlackUrlError] = useState<string>('');
 
-  // 원래 사용자 설정을 저장할 상태 (allEnabled가 false일 때 복원용)
+  // 원래 사용자 설정을 저장할 상태 (notificationsEnabled가 false일 때 복원용)
   const [originalEmailEnabled, setOriginalEmailEnabled] =
     useState<boolean>(false);
   const [originalSlackEnabled, setOriginalSlackEnabled] =
@@ -41,17 +42,17 @@ const NotificationSettings = () => {
       setEmailEnabled(settings.emailEnabled);
       setSlackEnabled(settings.slackEnabled);
       setSlackWebhookUrl(settings.slackWebhookUrl || undefined);
-      setAllEnabled(settings.allEnabled ?? true);
+      setNotificationsEnabled(settings.notificationsEnabled ?? true);
 
-      if (settings.allEnabled ?? true) {
+      if (settings.notificationsEnabled ?? true) {
         setOriginalEmailEnabled(settings.emailEnabled);
         setOriginalSlackEnabled(settings.slackEnabled);
       }
     }
   }, [data]);
 
-  const handleAllEnabledChange = (enabled: boolean) => {
-    setAllEnabled(enabled);
+  const handleNotificationsEnabledChange = (enabled: boolean) => {
+    setNotificationsEnabled(enabled);
 
     if (!enabled) {
       setOriginalEmailEnabled(emailEnabled);
@@ -79,14 +80,14 @@ const NotificationSettings = () => {
   // 개별 알림 설정 변경 시 원래 설정도 업데이트
   const handleEmailEnabledChange = (enabled: boolean) => {
     setEmailEnabled(enabled);
-    if (allEnabled) {
+    if (notificationsEnabled) {
       setOriginalEmailEnabled(enabled);
     }
   };
 
   const handleSlackEnabledChange = (enabled: boolean) => {
     setSlackEnabled(enabled);
-    if (allEnabled) {
+    if (notificationsEnabled) {
       setOriginalSlackEnabled(enabled);
     }
     if (!enabled) {
@@ -99,7 +100,7 @@ const NotificationSettings = () => {
       emailEnabled: boolean;
       slackEnabled: boolean;
       slackWebhookUrl?: string;
-      allEnabled: boolean;
+      notificationsEnabled: boolean;
     }) => updateNotificationSettings(settings),
     onSuccess: (responseData) => {
       queryClient.invalidateQueries({ queryKey: ['notificationSettings'] });
@@ -108,10 +109,10 @@ const NotificationSettings = () => {
         setEmailEnabled(settings.emailEnabled);
         setSlackEnabled(settings.slackEnabled);
         setSlackWebhookUrl(settings.slackWebhookUrl || undefined);
-        setAllEnabled(settings.allEnabled);
+        setNotificationsEnabled(settings.notificationsEnabled);
 
         // 성공적으로 업데이트된 후 원래 설정도 업데이트
-        if (settings.allEnabled) {
+        if (settings.notificationsEnabled) {
           setOriginalEmailEnabled(settings.emailEnabled);
           setOriginalSlackEnabled(settings.slackEnabled);
         }
@@ -146,12 +147,12 @@ const NotificationSettings = () => {
       emailEnabled: boolean;
       slackEnabled: boolean;
       slackWebhookUrl?: string;
-      allEnabled: boolean;
+      notificationsEnabled: boolean;
     } = {
       emailEnabled,
       slackEnabled,
       slackWebhookUrl: slackEnabled ? slackWebhookUrl?.trim() : undefined,
-      allEnabled,
+      notificationsEnabled,
     };
 
     updateSettingsMutation.mutate(settingsToUpdate);
@@ -164,25 +165,25 @@ const NotificationSettings = () => {
           {isLoading ? (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
-                <Skeleton className="w-24 h-5" />
-                <Skeleton className="w-10 h-6" />
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-6 w-10" />
               </div>
               <div className="flex items-center justify-between">
-                <Skeleton className="w-24 h-5" />
-                <Skeleton className="w-10 h-6" />
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-6 w-10" />
               </div>
               <div className="flex items-center justify-between">
-                <Skeleton className="w-24 h-5" />
-                <Skeleton className="w-10 h-6" />
+                <Skeleton className="h-5 w-24" />
+                <Skeleton className="h-6 w-10" />
               </div>
               <div className="space-y-2">
-                <Skeleton className="w-32 h-5" />
-                <Skeleton className="w-full h-10" />
+                <Skeleton className="h-5 w-32" />
+                <Skeleton className="h-10 w-full" />
               </div>
             </div>
           ) : (
             <>
-              <div className="flex items-center justify-between p-5 rounded-lg">
+              <div className="flex items-center justify-between rounded-lg p-5">
                 <div>
                   <Label htmlFor="all-notifications" className="font-medium">
                     전체 알림 허용
@@ -190,13 +191,13 @@ const NotificationSettings = () => {
                 </div>
                 <Switch
                   id="all-notifications"
-                  checked={allEnabled}
-                  onCheckedChange={handleAllEnabledChange}
+                  checked={notificationsEnabled}
+                  onCheckedChange={handleNotificationsEnabledChange}
                   disabled={updateSettingsMutation.isPending}
                 />
               </div>
 
-              <div className="flex items-center justify-between p-5 rounded-lg">
+              <div className="flex items-center justify-between rounded-lg p-5">
                 <Label htmlFor="email-notifications" className="font-medium">
                   이메일 알림
                 </Label>
@@ -204,11 +205,13 @@ const NotificationSettings = () => {
                   id="email-notifications"
                   checked={emailEnabled}
                   onCheckedChange={handleEmailEnabledChange}
-                  disabled={updateSettingsMutation.isPending || !allEnabled}
+                  disabled={
+                    updateSettingsMutation.isPending || !notificationsEnabled
+                  }
                 />
               </div>
 
-              <div className="flex items-center justify-between p-5 rounded-lg">
+              <div className="flex items-center justify-between rounded-lg p-5">
                 <Label htmlFor="slack-notifications" className="font-medium">
                   Slack 알림
                 </Label>
@@ -216,12 +219,14 @@ const NotificationSettings = () => {
                   id="slack-notifications"
                   checked={slackEnabled}
                   onCheckedChange={handleSlackEnabledChange}
-                  disabled={updateSettingsMutation.isPending || !allEnabled}
+                  disabled={
+                    updateSettingsMutation.isPending || !notificationsEnabled
+                  }
                 />
               </div>
 
-              {slackEnabled && allEnabled && (
-                <div className="p-4 space-y-2 border rounded-lg">
+              {slackEnabled && notificationsEnabled && (
+                <div className="space-y-2 rounded-lg border p-4">
                   <Label htmlFor="slack-webhook-url" className="font-medium">
                     Slack 웹훅 URL
                   </Label>
@@ -248,7 +253,7 @@ const NotificationSettings = () => {
             </>
           )}
         </CardContent>
-        <CardFooter className="flex justify-end p-4 space-x-2">
+        <CardFooter className="flex justify-end space-x-2 p-4">
           <Button
             onClick={handleSubmit}
             disabled={
