@@ -1,9 +1,22 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import CalendarPanel from '@/components/FilterPanel/CalendarPanel';
 import Layout from '../components/Layout/Layout';
-import EconomicIndicatorTable from '@/components/CalendarTable/EconomicIndicatorTable';
-import EarningsTable from '@/components/CalendarTable/EarningsTable';
-import DividendTable from '@/components/CalendarTable/DividendTable';
+import { 
+  EconomicIndicatorTableSkeleton, 
+  EarningsTableSkeleton, 
+  DividendTableSkeleton 
+} from '@/components/UI/Skeleton';
+
+// Lazy loading으로 테이블 컴포넌트들 로드
+const EconomicIndicatorTable = lazy(
+  () => import('@/components/CalendarTable/EconomicIndicatorTable'),
+);
+const EarningsTable = lazy(
+  () => import('@/components/CalendarTable/EarningsTable'),
+);
+const DividendTable = lazy(
+  () => import('@/components/CalendarTable/DividendTable'),
+);
 import ImportanceFilter from '@/components/CalendarTable/ImportanceFilter';
 import { formatDate } from '@/utils/dateUtils';
 import useCalendarStore from '@/zustand/useCalendarDateStore';
@@ -18,12 +31,12 @@ export default function MainPage() {
   const [selectedImportance, setSelectedImportance] = useState<number[]>([]);
 
   const { subSelectedDates } = useCalendarStore();
-  const initialDateRange: DateRange = {
+
+  // dateRange 상태를 subSelectedDates와 동기화
+  const dateRange: DateRange = {
     startDate: formatDate(subSelectedDates[0]),
     endDate: formatDate(subSelectedDates[subSelectedDates.length - 1]),
   };
-
-  const [dateRange, setDateRange] = useState<DateRange>(initialDateRange);
 
   const today = new Date();
   const endDateObj = new Date(dateRange.endDate);
@@ -64,14 +77,19 @@ export default function MainPage() {
       <div className="flex flex-col">
         {/* 캘린더 패널 */}
         <div className="px-8">
-          <CalendarPanel dateRange={dateRange} setDateRange={setDateRange} />
+          <CalendarPanel
+            dateRange={dateRange}
+            data={data?.data}
+            isLoading={isLoading}
+            error={error}
+          />
         </div>
 
         {/* 개발 환경에서만 테스트 에러 버튼 표시 */}
         {/* {import.meta.env.DEV && <TestErrorButton />} */}
 
         {/* 메뉴 버튼 영역 */}
-        <div className="flex items-center justify-between px-8 mt-4 text-sm">
+        <div className="mt-4 flex items-center justify-between px-8 text-sm">
           <div className="flex space-x-4">
             <button
               className={getButtonClass('경제지표')}
@@ -103,28 +121,34 @@ export default function MainPage() {
         </div>
 
         {/* 선택된 메뉴에 따라 테이블 컴포넌트 렌더링 */}
-        <div className="w-full px-8 mt-4 overflow-x-auto border-gray-300">
+        <div className="mt-4 w-full overflow-x-auto border-gray-300 px-8">
           {selectedMenu === '경제지표' && (
-            <EconomicIndicatorTable
-              events={economicIndicators}
-              dateRange={dateRange}
-              isLoading={isLoading}
-              selectedImportance={selectedImportance}
-            />
+            <Suspense fallback={<EconomicIndicatorTableSkeleton />}>
+              <EconomicIndicatorTable
+                events={economicIndicators}
+                dateRange={dateRange}
+                isLoading={isLoading}
+                selectedImportance={selectedImportance}
+              />
+            </Suspense>
           )}
           {selectedMenu === '실적' && (
-            <EarningsTable
-              events={earnings}
-              dateRange={dateRange}
-              isLoading={isLoading}
-            />
+            <Suspense fallback={<EarningsTableSkeleton />}>
+              <EarningsTable
+                events={earnings}
+                dateRange={dateRange}
+                isLoading={isLoading}
+              />
+            </Suspense>
           )}
           {selectedMenu === '배당' && (
-            <DividendTable
-              events={dividends}
-              dateRange={dateRange}
-              isLoading={isLoading}
-            />
+            <Suspense fallback={<DividendTableSkeleton />}>
+              <DividendTable
+                events={dividends}
+                dateRange={dateRange}
+                isLoading={isLoading}
+              />
+            </Suspense>
           )}
         </div>
       </div>

@@ -1,9 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense, lazy } from 'react';
 import CalendarPanel from '@/components/FilterPanel/CalendarPanel';
 import Layout from '../components/Layout/Layout';
-import EconomicIndicatorTable from '@/components/CalendarTable/EconomicIndicatorTable';
-import EarningsTable from '@/components/CalendarTable/EarningsTable';
-import DividendTable from '@/components/CalendarTable/DividendTable';
+import { 
+  EconomicIndicatorTableSkeleton, 
+  EarningsTableSkeleton, 
+  DividendTableSkeleton 
+} from '@/components/UI/Skeleton';
+
+// Lazy loading으로 테이블 컴포넌트들 로드
+const EconomicIndicatorTable = lazy(() => import('@/components/CalendarTable/EconomicIndicatorTable'));
+const EarningsTable = lazy(() => import('@/components/CalendarTable/EarningsTable'));
+const DividendTable = lazy(() => import('@/components/CalendarTable/DividendTable'));
 import { formatDate } from '@/utils/dateUtils';
 import useCalendarStore from '@/zustand/useCalendarDateStore';
 import { DateRange } from '@/types/calendar-date-range';
@@ -20,12 +27,12 @@ export default function FavoriteCalendarPage() {
   const { handleError } = useApiErrorHandler();
 
   const { subSelectedDates } = useCalendarStore();
-  const initialDateRange: DateRange = {
+
+  // dateRange 상태를 subSelectedDates와 동기화
+  const dateRange: DateRange = {
     startDate: formatDate(subSelectedDates[0]),
     endDate: formatDate(subSelectedDates[subSelectedDates.length - 1]),
   };
-
-  const [dateRange, setDateRange] = useState<DateRange>(initialDateRange);
 
   // 오늘 날짜와 비교하여 dateRange가 과거 데이터인지 판단
   const today = new Date();
@@ -108,7 +115,9 @@ export default function FavoriteCalendarPage() {
         <div className="px-8">
           <CalendarPanel
             dateRange={dateRange}
-            setDateRange={setDateRange}
+            data={data?.data}
+            isLoading={isLoading}
+            error={error}
             isFavoritePage={true}
           />
         </div>
@@ -141,28 +150,34 @@ export default function FavoriteCalendarPage() {
         {/* 선택된 메뉴에 따라 테이블 컴포넌트 렌더링 */}
         <div className="mt-4 w-full overflow-x-auto border-gray-300 px-8">
           {selectedMenu === '경제지표' && (
-            <EconomicIndicatorTable
-              events={economicIndicators}
-              dateRange={dateRange}
-              isLoading={isLoading}
-              isFavoritePage={true}
-            />
+            <Suspense fallback={<EconomicIndicatorTableSkeleton />}>
+              <EconomicIndicatorTable
+                events={economicIndicators}
+                dateRange={dateRange}
+                isLoading={isLoading}
+                isFavoritePage={true}
+              />
+            </Suspense>
           )}
           {selectedMenu === '실적' && (
-            <EarningsTable
-              events={earnings}
-              dateRange={dateRange}
-              isLoading={isLoading}
-              isFavoritePage={true}
-            />
+            <Suspense fallback={<EarningsTableSkeleton />}>
+              <EarningsTable
+                events={earnings}
+                dateRange={dateRange}
+                isLoading={isLoading}
+                isFavoritePage={true}
+              />
+            </Suspense>
           )}
           {selectedMenu === '배당' && (
-            <DividendTable
-              events={dividends}
-              dateRange={dateRange}
-              isLoading={isLoading}
-              isFavoritePage={true}
-            />
+            <Suspense fallback={<DividendTableSkeleton />}>
+              <DividendTable
+                events={dividends}
+                dateRange={dateRange}
+                isLoading={isLoading}
+                isFavoritePage={true}
+              />
+            </Suspense>
           )}
         </div>
       </div>
