@@ -102,6 +102,8 @@ export const getNotificationSettings = withErrorHandling(
       emailEnabled: boolean;
       slackEnabled: boolean;
       slackWebhookUrl?: string;
+      discordEnabled: boolean;
+      discordWebhookUrl?: string;
       notificationsEnabled: boolean;
     }>
   > => {
@@ -120,12 +122,16 @@ export const updateNotificationSettings = withErrorHandling(
     emailEnabled?: boolean;
     slackEnabled?: boolean;
     slackWebhookUrl?: string;
+    discordEnabled?: boolean;
+    discordWebhookUrl?: string;
     notificationsEnabled?: boolean;
   }): Promise<
     ApiResponse<{
       emailEnabled: boolean;
       slackEnabled: boolean;
       slackWebhookUrl?: string;
+      discordEnabled: boolean;
+      discordWebhookUrl?: string;
       notificationsEnabled: boolean;
     }>
   > => {
