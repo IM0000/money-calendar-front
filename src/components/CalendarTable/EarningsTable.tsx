@@ -1,4 +1,4 @@
-import React, { createRef, useMemo, useState } from 'react';
+import React, { createRef, useMemo, useState, memo } from 'react';
 import FavoriteButton from './FavoriteButton';
 import NotificationButton from './NotificationButton';
 import CalendarTableWrapper from './CalendarTableWrapper';
@@ -22,7 +22,7 @@ interface EarningsTableProps {
   isFavoritePage?: boolean;
 }
 
-export default function EarningsTable({
+const EarningsTable = memo(function EarningsTable({
   events,
   dateRange,
   isLoading = false,
@@ -44,18 +44,20 @@ export default function EarningsTable({
     return dates;
   }, [dateRange]);
 
-  // 날짜별로 그룹화
-  const groups = events.reduce(
-    (acc, earning) => {
-      const groupKey = earning.releaseDate
-        ? formatLocalISOString(new Date(earning.releaseDate)).slice(0, 10)
-        : '날짜 없음';
-      acc[groupKey] = acc[groupKey] || [];
-      acc[groupKey].push(earning);
-      return acc;
-    },
-    {} as Record<string, EarningsEvent[]>,
-  );
+  // 날짜별로 그룹화 (메모이제이션)
+  const groups = useMemo(() => {
+    return events.reduce(
+      (acc, earning) => {
+        const groupKey = earning.releaseDate
+          ? formatLocalISOString(new Date(earning.releaseDate)).slice(0, 10)
+          : '날짜 없음';
+        acc[groupKey] = acc[groupKey] || [];
+        acc[groupKey].push(earning);
+        return acc;
+      },
+      {} as Record<string, EarningsEvent[]>,
+    );
+  }, [events]);
 
   // allDates를 기준으로 정렬된 모든 날짜 키 생성 (빈 날짜 포함)
   const sortedGroupKeys = useMemo(() => {
@@ -184,9 +186,11 @@ export default function EarningsTable({
       </table>
     </CalendarTableWrapper>
   );
-}
+});
 
-function EarningRow({
+export default EarningsTable;
+
+const EarningRow = memo(function EarningRow({
   earning,
   isFavoritePage = false,
 }: {
@@ -323,4 +327,4 @@ function EarningRow({
       )}
     </>
   );
-}
+});

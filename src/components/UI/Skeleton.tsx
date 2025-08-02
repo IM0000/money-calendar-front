@@ -74,6 +74,129 @@ export const TableGroupSkeleton: React.FC<{
   );
 };
 
+// 완전한 테이블 스켈레톤 (경제지표용)
+export const EconomicIndicatorTableSkeleton: React.FC = () => {
+  return (
+    <div className="relative w-screen max-w-full overflow-y-auto" style={{ maxHeight: '600px' }}>
+      <table className="min-w-full table-fixed divide-y divide-gray-200">
+        <thead className="sticky top-0 z-30 bg-gray-50">
+          <tr className="h-[2.80rem]">
+            <th className="w-[70px] min-w-[70px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[50px] min-w-[50px] px-2 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-auto min-w-[300px] px-4 py-2">
+              <Skeleton width="60%" height="1rem" />
+            </th>
+            <th className="w-[90px] min-w-[100px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[110px] min-w-[140px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[110px] min-w-[140px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[110px] min-w-[120px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <TableGroupSkeleton columns={7} rows={3} />
+          <TableGroupSkeleton columns={7} rows={2} />
+          <TableGroupSkeleton columns={7} rows={4} />
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// 완전한 테이블 스켈레톤 (실적용)
+export const EarningsTableSkeleton: React.FC = () => {
+  return (
+    <div className="relative w-screen max-w-full overflow-y-auto" style={{ maxHeight: '600px' }}>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="sticky top-0 z-30 bg-gray-50">
+          <tr className="h-[2.80rem]">
+            <th className="w-[60px] min-w-[60px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[50px] min-w-[50px] px-2 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-auto min-w-[150px] px-4 py-2">
+              <Skeleton width="60%" height="1rem" />
+            </th>
+            <th className="w-[140px] min-w-[140px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[140px] min-w-[140px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[100px] min-w-[100px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[90px] min-w-[90px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <TableGroupSkeleton columns={7} rows={4} />
+          <TableGroupSkeleton columns={7} rows={2} />
+          <TableGroupSkeleton columns={7} rows={3} />
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// 완전한 테이블 스켈레톤 (배당용)
+export const DividendTableSkeleton: React.FC = () => {
+  return (
+    <div className="relative w-screen max-w-full overflow-y-auto" style={{ maxHeight: '600px' }}>
+      <table className="min-w-full divide-y divide-gray-200">
+        <thead className="sticky top-0 z-30 bg-gray-50">
+          <tr className="h-[2.80rem]">
+            <th className="w-[50px] min-w-[50px] px-2 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-auto min-w-[180px] px-4 py-2">
+              <Skeleton width="60%" height="1rem" />
+            </th>
+            <th className="w-[120px] min-w-[120px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[80px] min-w-[80px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[120px] min-w-[120px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[90px] min-w-[90px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[100px] min-w-[100px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+            <th className="w-[90px] min-w-[90px] px-3 py-2">
+              <Skeleton width="100%" height="1rem" />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <TableGroupSkeleton columns={8} rows={3} />
+          <TableGroupSkeleton columns={8} rows={2} />
+          <TableGroupSkeleton columns={8} rows={2} />
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 // 캘린더 패널 스켈레톤
 export const CalendarPanelSkeleton: React.FC = () => {
   return (
