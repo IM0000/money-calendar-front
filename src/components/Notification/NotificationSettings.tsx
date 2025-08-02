@@ -21,14 +21,21 @@ const NotificationSettings = () => {
   const [slackWebhookUrl, setSlackWebhookUrl] = useState<string | undefined>(
     undefined,
   );
+  const [discordEnabled, setDiscordEnabled] = useState<boolean>(false);
+  const [discordWebhookUrl, setDiscordWebhookUrl] = useState<
+    string | undefined
+  >(undefined);
   const [notificationsEnabled, setNotificationsEnabled] =
     useState<boolean>(true);
   const [slackUrlError, setSlackUrlError] = useState<string>('');
+  const [discordUrlError, setDiscordUrlError] = useState<string>('');
 
   // 원래 사용자 설정을 저장할 상태 (notificationsEnabled가 false일 때 복원용)
   const [originalEmailEnabled, setOriginalEmailEnabled] =
     useState<boolean>(false);
   const [originalSlackEnabled, setOriginalSlackEnabled] =
+    useState<boolean>(false);
+  const [originalDiscordEnabled, setOriginalDiscordEnabled] =
     useState<boolean>(false);
 
   const { data, isLoading } = useQuery({
@@ -42,11 +49,14 @@ const NotificationSettings = () => {
       setEmailEnabled(settings.emailEnabled);
       setSlackEnabled(settings.slackEnabled);
       setSlackWebhookUrl(settings.slackWebhookUrl || undefined);
+      setDiscordEnabled(settings.discordEnabled || false);
+      setDiscordWebhookUrl(settings.discordWebhookUrl || undefined);
       setNotificationsEnabled(settings.notificationsEnabled ?? true);
 
       if (settings.notificationsEnabled ?? true) {
         setOriginalEmailEnabled(settings.emailEnabled);
         setOriginalSlackEnabled(settings.slackEnabled);
+        setOriginalDiscordEnabled(settings.discordEnabled || false);
       }
     }
   }, [data]);
@@ -57,12 +67,16 @@ const NotificationSettings = () => {
     if (!enabled) {
       setOriginalEmailEnabled(emailEnabled);
       setOriginalSlackEnabled(slackEnabled);
+      setOriginalDiscordEnabled(discordEnabled);
       setEmailEnabled(false);
       setSlackEnabled(false);
+      setDiscordEnabled(false);
       setSlackUrlError('');
+      setDiscordUrlError('');
     } else {
       setEmailEnabled(originalEmailEnabled);
       setSlackEnabled(originalSlackEnabled);
+      setDiscordEnabled(originalDiscordEnabled);
     }
   };
 
@@ -74,6 +88,23 @@ const NotificationSettings = () => {
       setSlackUrlError(error);
     } else {
       setSlackUrlError('');
+    }
+  };
+
+  // Discord 웹훅 URL 변경 핸들러
+  const handleDiscordWebhookUrlChange = (value: string) => {
+    setDiscordWebhookUrl(value);
+    if (discordEnabled && value) {
+      // Discord 웹훅 URL 검증 로직 (기본적인 URL 형식만 검증)
+      const discordWebhookPattern =
+        /^https:\/\/discord(?:app)?\.com\/api\/webhooks\/\d+\/.+$/;
+      if (!discordWebhookPattern.test(value.trim())) {
+        setDiscordUrlError('올바른 Discord 웹훅 URL 형식이 아닙니다.');
+      } else {
+        setDiscordUrlError('');
+      }
+    } else {
+      setDiscordUrlError('');
     }
   };
 
@@ -95,11 +126,23 @@ const NotificationSettings = () => {
     }
   };
 
+  const handleDiscordEnabledChange = (enabled: boolean) => {
+    setDiscordEnabled(enabled);
+    if (notificationsEnabled) {
+      setOriginalDiscordEnabled(enabled);
+    }
+    if (!enabled) {
+      setDiscordUrlError('');
+    }
+  };
+
   const updateSettingsMutation = useMutation({
     mutationFn: (settings: {
       emailEnabled: boolean;
       slackEnabled: boolean;
       slackWebhookUrl?: string;
+      discordEnabled: boolean;
+      discordWebhookUrl?: string;
       notificationsEnabled: boolean;
     }) => updateNotificationSettings(settings),
     onSuccess: (responseData) => {
@@ -109,12 +152,15 @@ const NotificationSettings = () => {
         setEmailEnabled(settings.emailEnabled);
         setSlackEnabled(settings.slackEnabled);
         setSlackWebhookUrl(settings.slackWebhookUrl || undefined);
+        setDiscordEnabled(settings.discordEnabled || false);
+        setDiscordWebhookUrl(settings.discordWebhookUrl || undefined);
         setNotificationsEnabled(settings.notificationsEnabled);
 
         // 성공적으로 업데이트된 후 원래 설정도 업데이트
         if (settings.notificationsEnabled) {
           setOriginalEmailEnabled(settings.emailEnabled);
           setOriginalSlackEnabled(settings.slackEnabled);
+          setOriginalDiscordEnabled(settings.discordEnabled || false);
         }
       }
       toast.success('알림 설정이 업데이트되었습니다.');
@@ -143,15 +189,33 @@ const NotificationSettings = () => {
       }
     }
 
+    // Discord 웹훅 URL 검증
+    if (discordEnabled) {
+      if (!discordWebhookUrl?.trim()) {
+        toast.error('Discord 알림을 사용하려면 웹훅 URL을 입력해야 합니다.');
+        setDiscordUrlError('Discord 웹훅 URL을 입력해주세요.');
+        return;
+      }
+
+      if (discordUrlError) {
+        toast.error(discordUrlError);
+        return;
+      }
+    }
+
     const settingsToUpdate: {
       emailEnabled: boolean;
       slackEnabled: boolean;
       slackWebhookUrl?: string;
+      discordEnabled: boolean;
+      discordWebhookUrl?: string;
       notificationsEnabled: boolean;
     } = {
       emailEnabled,
       slackEnabled,
       slackWebhookUrl: slackEnabled ? slackWebhookUrl?.trim() : undefined,
+      discordEnabled,
+      discordWebhookUrl: discordEnabled ? discordWebhookUrl?.trim() : undefined,
       notificationsEnabled,
     };
 
@@ -225,6 +289,20 @@ const NotificationSettings = () => {
                 />
               </div>
 
+              <div className="flex items-center justify-between rounded-lg p-5">
+                <Label htmlFor="discord-notifications" className="font-medium">
+                  Discord 알림
+                </Label>
+                <Switch
+                  id="discord-notifications"
+                  checked={discordEnabled}
+                  onCheckedChange={handleDiscordEnabledChange}
+                  disabled={
+                    updateSettingsMutation.isPending || !notificationsEnabled
+                  }
+                />
+              </div>
+
               {slackEnabled && notificationsEnabled && (
                 <div className="space-y-2 rounded-lg border p-4">
                   <Label htmlFor="slack-webhook-url" className="font-medium">
@@ -250,6 +328,32 @@ const NotificationSettings = () => {
                   </p>
                 </div>
               )}
+
+              {discordEnabled && notificationsEnabled && (
+                <div className="space-y-2 rounded-lg border p-4">
+                  <Label htmlFor="discord-webhook-url" className="font-medium">
+                    Discord 웹훅 URL
+                  </Label>
+                  <Input
+                    id="discord-webhook-url"
+                    value={discordWebhookUrl || ''}
+                    onChange={(e) =>
+                      handleDiscordWebhookUrlChange(e.target.value)
+                    }
+                    placeholder="https://discord.com/api/webhooks/.../.../..."
+                    disabled={updateSettingsMutation.isPending}
+                    required
+                    className={discordUrlError ? 'border-red-500' : ''}
+                  />
+                  {discordUrlError && (
+                    <p className="text-sm text-red-600">{discordUrlError}</p>
+                  )}
+                  <p className="text-sm text-muted-foreground">
+                    Discord 알림을 받기 위해 올바른 형식의 웹훅 URL을
+                    입력해주세요.
+                  </p>
+                </div>
+              )}
             </>
           )}
         </CardContent>
@@ -259,7 +363,8 @@ const NotificationSettings = () => {
             disabled={
               isLoading ||
               updateSettingsMutation.isPending ||
-              (slackEnabled && !!slackUrlError)
+              (slackEnabled && !!slackUrlError) ||
+              (discordEnabled && !!discordUrlError)
             }
           >
             {updateSettingsMutation.isPending ? '적용 중...' : '적용'}
